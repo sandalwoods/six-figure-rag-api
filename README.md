@@ -69,3 +69,7 @@ Chat Routes
 
 - POST `/api/chats/` ~ Create a new chat
 - DELETE `/api/chats/{chat_id}` ~ Delete a specific chat
+
+## 05_SpecificProjectSettings
+
+- PUT `/api/projects/{projectId}/settings` ~ Update specific project settings

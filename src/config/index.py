@@ -22,6 +22,16 @@ if (
         "S3_BUCKET_NAME, AWS_REGION, AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must be set in .env file"
     )
 
+if not os.getenv("REDIS_URL"):
+    raise ValueError("REDIS_URL must be set in .env file")
+
+if not os.getenv("OPENAI_API_KEY"):
+    raise ValueError("OPENAI_API_KEY must be set in .env file")
+
+if not os.getenv("SCRAPINGBEE_API_KEY"):
+    raise ValueError("SCRAPINGBEE_API_KEY must be set in .env file")
+
+
 appConfig = {
     "supabase_api_url": os.getenv("SUPABASE_API_URL"),
     "supabase_secret_key": os.getenv("SUPABASE_SECRET_KEY"),
@@ -31,4 +41,7 @@ appConfig = {
     "aws_region": os.getenv("AWS_REGION"),
     "aws_secret_access_key": os.getenv("AWS_SECRET_ACCESS_KEY"),
     "aws_access_key_id": os.getenv("AWS_ACCESS_KEY_ID"),
+    "redis_url": os.getenv("REDIS_URL"),
+    "openai_api_key": os.getenv("OPENAI_API_KEY"),
+    "scrapingbee_api_key": os.getenv("SCRAPINGBEE_API_KEY"),
 }

@@ -89,3 +89,20 @@ Chat Routes
   - POST `/api/projects/{project_id}/urls`
 - Delete Document API
   - DELETE `/api/projects/{project_id}/files/{file_id}` ~ To delete the document
+
+## 07_RAG-Ingestion
+
+- Complete Ingestion Pipeline Diagram: [https://ik.imagekit.io/5wegcvcxp/HarishNeel/image.png]
+- Please make sure that you have watched the Multi-modal Pipelines video in the RAG foundation course:
+  - Harish Neel LMS: https://academy.harishneel.com/web/lite/view/chapter/68f21ae4d0f42ae662da513b?course=68f218b8e28ae5601ab8cc84
+  - GitHub: https://github.com/harishneel1/multi-modal-rag-pipeline/tree/main
+- Ensure you install system dependencies as mentioned in the Jupyter notebook above: `Poppler`, `Tesseract`, and `libmagic`
+- Will use Redis via Docker container with port mapping and easily start with `sh start_redis.sh`
+- Install the `celery` `redis` `unstructured[all-docs]` dependencies.
+- Initialize Celery Worker after file upload confirmation or website url to Start the background processing in `/api/projects/{project_id}/files/confirm` and `/api/projects/{project_id}/urls`
+- For URLs, we are going to use a web scraper - the `scrapingbee` dependency. Ensure you initiate it.
+- All updates will be shown on the frontend using short polling by making requests to `/api/projects/{project_id}/files`
+- Initialize the LLM (OpenAI) for embeddings and chat functionality. Install: `langchain-openai`, `langchain`, `langchain-community`
+- Whenever we make changes inside a task, we must **restart the Celery server**. Otherwise, the changes will **not be reflected**. Run shell script `sh start_worker.sh` Or in case want to stop all the services `sh stopAll.sh`.
+- Display Specific Project File Chunks
+  - GET `/api/projects/{project_id}/files/{file_id}/chunks` ~ Get project document chunks

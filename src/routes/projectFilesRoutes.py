@@ -6,6 +6,8 @@ from src.utils.index import validate_url
 from src.config.index import appConfig
 from src.services.awsS3 import s3_client
 import uuid
+from src.services.celery import perform_rag_ingestion_task
+
 
 router = APIRouter(tags=["projectFilesRoutes"])
 
@@ -17,6 +19,7 @@ router = APIRouter(tags=["projectFilesRoutes"])
   - POST `/{project_id}/files/confirm` ~ Confirmation of file upload to S3
   - POST `/{project_id}/urls` ~ Add website URL to database
   - DELETE `/{project_id}/files/{file_id}` ~ Delete document from s3 and database
+  - GET `/{project_id}/files/{file_id}/chunks` ~ Get project document chunks
 """
 
 
@@ -206,6 +209,25 @@ async def confirm_file_upload_to_s3(
         )
 
         # ! Celery - Starts Background Processing - RAG Ingestion Task
+        document_id = document_update_result.data[0]["id"]
+        task_result = perform_rag_ingestion_task.delay(document_id)
+        task_id = task_result.id
+
+        document_update_result = (
+            supabase.table("project_documents")
+            .update(
+                {
+                    "task_id": task_id,
+                }
+            )
+            .eq("id", document_id)
+            .execute()
+        )
+        if not document_update_result.data:
+            raise HTTPException(
+                status_code=422,
+                detail="Failed to update project document record with task_id",
+            )
 
         return {
             "message": "File upload to S3 confirmed successfully And Started Background Pre-Processing of this file",
@@ -272,6 +294,26 @@ async def process_url(
             )
 
         # ! Celery - Starts Background Processing - RAG Ingestion Task
+        document_id = document_creation_result.data[0]["id"]
+        task_result = perform_rag_ingestion_task.delay(document_id)
+        task_id = task_result.id
+
+        document_update_result = (
+            supabase.table("project_documents")
+            .update(
+                {
+                    "task_id": task_id,
+                }
+            )
+            .eq("id", document_id)
+            .execute()
+        )
+
+        if not document_update_result.data:
+            raise HTTPException(
+                status_code=422,
+                detail="Failed to update project document record with task_id",
+            )
 
         return {
             "message": "Website URL added to database successfully And Started Background Pre-Processing of this URL",
@@ -345,4 +387,52 @@ async def delete_project_document(
         raise HTTPException(
             status_code=500,
             detail=f"An internal server error occurred while deleting project document {file_id} for {project_id}: {str(e)}",
+        )
+
+
+@router.get("/{project_id}/files/{file_id}/chunks")
+async def get_project_document_chunks(
+    project_id: str,
+    file_id: str,
+    current_user_clerk_id: str = Depends(get_current_user_clerk_id),
+):
+    """
+    ! Logic Flow:
+    * 1. Verify document exists and belongs to the current user and Take complete project document record
+    * 2. Get project document chunks
+    * 3. Return project document chunks data
+    """
+    try:
+        # Verify document exists and belongs to the current user and Take complete project document record
+        document_ownership_verification_result = (
+            supabase.table("project_documents")
+            .select("*")
+            .eq("id", file_id)
+            .eq("project_id", project_id)
+            .eq("clerk_id", current_user_clerk_id)
+            .execute()
+        )
+
+        if not document_ownership_verification_result.data:
+            raise HTTPException(
+                status_code=404,
+                detail="Document not found or you don't have permission to delete this document",
+            )
+
+        document_chunks_result = (
+            supabase.table("document_chunks")
+            .select("*")
+            .eq("document_id", file_id)
+            .order("chunk_index")
+            .execute()
+        )
+
+        return {
+            "message": "Project document chunks retrieved successfully",
+            "data": document_chunks_result.data or [],
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"An internal server error occurred while getting project document chunks for {file_id} for {project_id}: {str(e)}",
         )

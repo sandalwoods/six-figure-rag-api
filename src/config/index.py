@@ -31,6 +31,8 @@ if not os.getenv("OPENAI_API_KEY"):
 if not os.getenv("SCRAPINGBEE_API_KEY"):
     raise ValueError("SCRAPINGBEE_API_KEY must be set in .env file")
 
+if not os.getenv("TAVILY_API_KEY"):
+    raise ValueError("TAVILY_API_KEY must be set in .env file")
 
 appConfig = {
     "supabase_api_url": os.getenv("SUPABASE_API_URL"),
@@ -44,4 +46,5 @@ appConfig = {
     "redis_url": os.getenv("REDIS_URL"),
     "openai_api_key": os.getenv("OPENAI_API_KEY"),
     "scrapingbee_api_key": os.getenv("SCRAPINGBEE_API_KEY"),
+    "tavily_api_key": os.getenv("TAVILY_API_KEY")
 }

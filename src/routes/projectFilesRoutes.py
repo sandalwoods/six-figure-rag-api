@@ -7,7 +7,7 @@ from src.config.index import appConfig
 from src.services.awsS3 import s3_client
 import uuid
 from src.services.celery import perform_rag_ingestion_task
-from src.config.logging import get_logger, set_project_id
+from src.config.logging import get_logger, set_project_id, set_user_id
 
 logger = get_logger(__name__)
 
@@ -36,8 +36,9 @@ async def get_project_files(
     * 3. Return project documents data
     """
     set_project_id(project_id)
+    set_user_id(current_user_clerk_id)
     try:
-        logger.info("fetching_project_files", user_id=current_user_clerk_id)
+        logger.info("fetching_project_files")
         project_files_result = (
             supabase.table("project_documents")
             .select("*")
@@ -82,6 +83,7 @@ async def get_upload_presigned_url(
     * 5. Return presigned url
     """
     set_project_id(project_id)
+    set_user_id(current_user_clerk_id)
     try:
         logger.info("generating_upload_url", filename=file_upload_request.filename, file_size=file_upload_request.file_size)
         # Verify project exists and belongs to the current user
@@ -94,7 +96,7 @@ async def get_upload_presigned_url(
         )
 
         if not project_ownership_verification_result.data:
-            logger.warning("project_not_found_for_upload", user_id=current_user_clerk_id)
+            logger.warning("project_not_found_for_upload")
             raise HTTPException(
                 status_code=404,
                 detail="Project not found or you don't have permission to upload files to this project",
@@ -192,6 +194,7 @@ async def confirm_file_upload_to_s3(
     * 6. Return successfully confirmed file upload data
     """
     set_project_id(project_id)
+    set_user_id(current_user_clerk_id)
     try:
         s3_key = confirm_file_upload_request.get("s3_key")
         logger.info("confirming_file_upload", s3_key=s3_key)
@@ -285,6 +288,7 @@ async def process_url(
     * 4. Return successfully processed URL data
     """
     set_project_id(project_id)
+    set_user_id(current_user_clerk_id)
     try:
         # Validate URL
         url = url.url
@@ -382,8 +386,9 @@ async def delete_project_document(
     * 4. Return successfully deleted document data
     """
     set_project_id(project_id)
+    set_user_id(current_user_clerk_id)
     try:
-        logger.info("deleting_document", file_id=file_id, user_id=current_user_clerk_id)
+        logger.info("deleting_document", file_id=file_id)
         # Verify document exists and belongs to the current user and Take complete project document record
         document_ownership_verification_result = (
             supabase.table("project_documents")
@@ -454,8 +459,9 @@ async def get_project_document_chunks(
     * 3. Return project document chunks data
     """
     set_project_id(project_id)
+    set_user_id(current_user_clerk_id)
     try:
-        logger.info("fetching_document_chunks", file_id=file_id, user_id=current_user_clerk_id)
+        logger.info("fetching_document_chunks", file_id=file_id)
         # Verify document exists and belongs to the current user and Take complete project document record
         document_ownership_verification_result = (
             supabase.table("project_documents")

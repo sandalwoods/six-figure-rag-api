@@ -7,7 +7,7 @@ from src.services.supabase import supabase
 from src.services.clerkAuth import get_current_user_clerk_id
 from src.models.index import ProjectCreate, ProjectSettings
 from src.models.index import MessageCreate, MessageRole
-from src.config.logging import get_logger, set_project_id
+from src.config.logging import get_logger, set_project_id, set_user_id
 
 logger = get_logger(__name__)
 
@@ -36,8 +36,9 @@ async def get_projects(current_user_clerk_id: str = Depends(get_current_user_cle
     * 2. Query projects table for projects related to the current user
     * 3. Return projects data
     """
+    set_user_id(current_user_clerk_id)
     try:
-        logger.info("fetching_projects", user_id=current_user_clerk_id)
+        logger.info("fetching_projects")
         projects_query_result = (
             supabase.table("projects")
             .select("*")
@@ -45,7 +46,7 @@ async def get_projects(current_user_clerk_id: str = Depends(get_current_user_cle
             .execute()
         )
 
-        logger.info("projects_retrieved", user_id=current_user_clerk_id, project_count=len(projects_query_result.data or []))
+        logger.info("projects_retrieved", project_count=len(projects_query_result.data or []))
         return {
             "message": "Projects retrieved successfully",
             "data": projects_query_result.data or [],
@@ -55,7 +56,7 @@ async def get_projects(current_user_clerk_id: str = Depends(get_current_user_cle
         raise e
 
     except Exception as e:
-        logger.error("projects_fetch_failed", user_id=current_user_clerk_id, error=str(e), exc_info=True)
+        logger.error("projects_fetch_failed", error=str(e), exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"An error occurred while fetching projects: {str(e)}",
@@ -76,8 +77,9 @@ async def create_project(
     * 5. Check if project settings creation failed, then rollback the project creation
     * 6. Return newly created project data
     """
+    set_user_id(current_user_clerk_id)
     try:
-        logger.info("creating_project", name=project_data.name, user_id=current_user_clerk_id)
+        logger.info("creating_project", name=project_data.name)
         # Insert new project into database
         project_insert_data = {
             "name": project_data.name,
@@ -90,7 +92,7 @@ async def create_project(
         )
 
         if not project_creation_result.data:
-            logger.error("project_creation_failed", name=project_data.name, user_id=current_user_clerk_id, reason="no_data_returned")
+            logger.error("project_creation_failed", name=project_data.name, reason="no_data_returned")
             raise HTTPException(
                 status_code=422,
                 detail="Failed to create project - invalid data provided",
@@ -141,7 +143,7 @@ async def create_project(
         raise e
 
     except Exception as e:
-        logger.error("project_creation_error", name=project_data.name, user_id=current_user_clerk_id, error=str(e), exc_info=True)
+        logger.error("project_creation_error", name=project_data.name, error=str(e), exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"An internal server error occurred while creating project: {str(e)}",
@@ -161,8 +163,9 @@ async def delete_project(
     * 5. Return successfully deleted project data
     """
     set_project_id(project_id)
+    set_user_id(current_user_clerk_id)
     try:
-        logger.info("deleting_project", user_id=current_user_clerk_id)
+        logger.info("deleting_project")
         # Verify if the project exists and belongs to the current user
         project_ownership_verification_result = (
             supabase.table("projects")
@@ -173,7 +176,7 @@ async def delete_project(
         )
 
         if not project_ownership_verification_result.data:
-            logger.warning("project_not_found_or_unauthorized", user_id=current_user_clerk_id)
+            logger.warning("project_not_found_or_unauthorized")
             raise HTTPException(
                 status_code=404,  # Not Found - project doesn't exist or doesn't belong to user
                 detail="Project not found or you don't have permission to delete it",
@@ -197,7 +200,7 @@ async def delete_project(
 
         successfully_deleted_project = project_deletion_result.data[0]
 
-        logger.info("project_deleted_successfully", user_id=current_user_clerk_id)
+        logger.info("project_deleted_successfully")
         return {
             "message": "Project deleted successfully",
             "data": successfully_deleted_project,
@@ -207,7 +210,7 @@ async def delete_project(
         raise e
 
     except Exception as e:
-        logger.error("project_deletion_error", user_id=current_user_clerk_id, error=str(e), exc_info=True)
+        logger.error("project_deletion_error", error=str(e), exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"An internal server error occurred while deleting project: {str(e)}",
@@ -225,8 +228,9 @@ async def get_project(
     * 3. Return project data
     """
     set_project_id(project_id)
+    set_user_id(current_user_clerk_id)
     try:
-        logger.info("fetching_project", user_id=current_user_clerk_id)
+        logger.info("fetching_project")
         project_result = (
             supabase.table("projects")
             .select("*")
@@ -236,7 +240,7 @@ async def get_project(
         )
 
         if not project_result.data:
-            logger.warning("project_not_found", user_id=current_user_clerk_id)
+            logger.warning("project_not_found")
             raise HTTPException(
                 status_code=404,
                 detail="Project not found or you don't have permission to access it",
@@ -270,8 +274,9 @@ async def get_project_chats(
     * 3. Return project chats data
     """
     set_project_id(project_id)
+    set_user_id(current_user_clerk_id)
     try:
-        logger.info("fetching_project_chats", user_id=current_user_clerk_id)
+        logger.info("fetching_project_chats")
         project_chats_result = (
             supabase.table("chats")
             .select("*")
@@ -313,8 +318,9 @@ async def get_project_settings(
     * 4. Return project settings data
     """
     set_project_id(project_id)
+    set_user_id(current_user_clerk_id)
     try:
-        logger.info("fetching_project_settings", user_id=current_user_clerk_id)
+        logger.info("fetching_project_settings")
         project_settings_result = (
             supabase.table("project_settings")
             .select("*")
@@ -368,9 +374,9 @@ async def update_project_settings(
     * 6. Return successfully updated project settings data
     """
     set_project_id(project_id)
+    set_user_id(current_user_clerk_id)
     try:
         logger.info("updating_project_settings",
-                   user_id=current_user_clerk_id,
                    rag_strategy=settings.rag_strategy,
                    agent_type=settings.agent_type,
                    embedding_model=settings.embedding_model,
@@ -385,7 +391,7 @@ async def update_project_settings(
         )
 
         if not project_ownership_verification_result.data:
-            logger.warning("project_not_found_for_settings_update", user_id=current_user_clerk_id)
+            logger.warning("project_not_found_for_settings_update")
             raise HTTPException(
                 status_code=404,
                 detail="Project not found or you don't have permission to update its settings",
@@ -508,6 +514,7 @@ async def send_message(
     Returns a JSON response with the user message and AI response.
     """
     set_project_id(project_id)
+    set_user_id(current_user_clerk_id)
     try:
         logger.info("sending_message", chat_id=chat_id)
         # Step 1 : Insert the message into the database.
@@ -530,7 +537,7 @@ async def send_message(
 
         # Step 2 : Get project settings to retrieve agent_type
         try:
-            project_settings = await get_project_settings(project_id)
+            project_settings = await get_project_settings(project_id, current_user_clerk_id)
             agent_type = project_settings["data"].get("agent_type", "simple")
         except Exception as e:
             logger.warning("settings_retrieval_failed_defaulting_to_simple", error=str(e))

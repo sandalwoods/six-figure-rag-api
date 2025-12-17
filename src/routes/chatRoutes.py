@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from src.services.supabase import supabase
 from src.services.clerkAuth import get_current_user_clerk_id
 from src.models.index import ChatCreate
-from src.config.logging import get_logger, set_project_id
+from src.config.logging import get_logger, set_project_id, set_user_id
 
 logger = get_logger(__name__)
 
@@ -29,7 +29,8 @@ async def create_chat(
     * 4. Return successfully created chat data
     """
     set_project_id(chat.project_id)
-    logger.info("creating_chat", title=chat.title, user_id=current_user_clerk_id)
+    set_user_id(current_user_clerk_id)
+    logger.info("creating_chat", title=chat.title)
 
     try:
         chat_insert_data = {
@@ -77,9 +78,22 @@ async def delete_chat(
     * 3. Delete chat
     * 4. Return successfully deleted chat data
     """
+    set_user_id(current_user_clerk_id)
     logger.info("deleting_chat", chat_id=chat_id)
 
     try:
+        # First get the chat to retrieve project_id
+        chat_result = (
+            supabase.table("chats")
+            .select("project_id")
+            .eq("id", chat_id)
+            .eq("clerk_id", current_user_clerk_id)
+            .execute()
+        )
+
+        if chat_result.data:
+            set_project_id(chat_result.data[0].get("project_id"))
+
         chat_deletion_result = (
             supabase.table("chats")
             .delete()
@@ -122,6 +136,7 @@ async def get_chat(
     * 3. Get chat messages
     * 4. Return chat data
     """
+    set_user_id(current_user_clerk_id)
     try:
         # Verify if the chat exists and belongs to the current user
         chat_ownership_verification_result = (
@@ -139,6 +154,7 @@ async def get_chat(
             )
 
         chat_result = chat_ownership_verification_result.data[0]
+        set_project_id(chat_result.get("project_id"))
 
         messages_result = (
             supabase.table("messages")

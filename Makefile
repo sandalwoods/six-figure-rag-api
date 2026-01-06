@@ -1,26 +1,45 @@
-# Makefile - ADD THIS
-.PHONY: server worker redis eval-collect eval-run eval-full
+# Makefile
+.PHONY: start stop clean restart check-supabase eval-collect eval-run logs
 
-# Development servers
-server:
-	./start_server.sh
+# Check if Supabase is running
+check-supabase:
+	@echo "Checking Supabase..."
+	@npx supabase start
+	@npx supabase status > /dev/null 2>&1 && echo "✓ Supabase is running" || (echo "✗ Supabase failed to start" && exit 1)
 
-worker:
-	./start_worker.sh
+# Start all containers (with Supabase check)
+start: check-supabase
+	@echo "Starting Docker containers..."
+	@echo "Building Docker images..."
+	docker-compose build
+	@echo "Starting containers..."
+	docker-compose up -d
 
-redis:
-	./start_redis.sh
-
-# Stop services
+# Stop all containers
 stop:
-	./stopAll.sh
+	@echo "Stopping Docker containers..."
+	docker-compose down
 
-# Evaluation tasks
-eval-collect:
-	poetry run python evaluation/scripts/collect_data.py
+# Clean everything (containers, images, volumes)
+clean:
+	@echo "Cleaning all Docker resources..."
+	docker-compose down -v --rmi all --remove-orphans
 
-eval-run:
-	poetry run python evaluation/scripts/ragas_evaluation_script.py
+# Restart all containers
+restart: stop start
 
-eval-full: eval-collect eval-run
-	@echo "✅ Evaluation complete!"
+# View API server logs
+logs-api:
+	@echo "Showing API server logs (Ctrl+C to exit)..."
+	docker-compose logs -f api
+
+# View API server logs
+logs-redis:
+	@echo "Showing Redis server logs (Ctrl+C to exit)..."
+	docker-compose logs -f redis
+
+# View Worker logs
+logs-worker:
+	@echo "Showing Worker logs (Ctrl+C to exit)..."
+	docker-compose logs -f worker
+

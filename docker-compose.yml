@@ -13,6 +13,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - default
 
   api:
     build:
@@ -24,16 +26,29 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - SUPABASE_API_URL=http://host.docker.internal:54321
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: uvicorn src.server:app --host 0.0.0.0 --port 8000
     restart: unless-stopped
     depends_on:
       redis:
         condition: service_healthy
+    networks:
+      - default
 
   worker:
     image: sf-rag:1.0.0
+    container_name: rag-worker
     env_file:
       - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - SUPABASE_API_URL=http://host.docker.internal:54321
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: >
       celery -A src.services.celery:celery_app worker
       --loglevel=info
@@ -42,6 +57,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    networks:
+      - default
 
 networks:
   default:

@@ -19,8 +19,6 @@ from src.services.llm import openAI
 from langchain_core.messages import HumanMessage
 
 
-
-
 def partition_document(temp_file: str, file_type: str, source_type: str = "file"):
     """Partition document based on file type and source type"""
 

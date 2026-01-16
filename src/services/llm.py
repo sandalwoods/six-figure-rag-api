@@ -31,23 +31,6 @@ openAI = {
     ),
 }
 
-# openAI = {
-#     "embeddings_llm": ChatOpenAI(
-#         model="qwen3-coder:480b-cloud", base_url=OLLAMA_BASE_URL, api_key=appConfig["ollama_api_key"], temperature=0
-#     ),
-#     "embeddings": OllamaEmbeddings(
-#         model="nomic-embed-text",
-#         base_url=LOCAL_OLLAMA_BASE_URL,
-#         # api_key=appConfig["OLLAMA_API_KEY"],
-#         # dimensions=768,  # This ollama model only support 768.  1536 Do not changes this value. It is used in the document_chunks embedding vector.
-#     ),
-#     "chat_llm": ChatOpenAI(
-#          model="qwen3-coder:480b-cloud", base_url=OLLAMA_BASE_URL, api_key=appConfig["ollama_api_key"], temperature=0
-#     ),
-#     "mini_llm": ChatOpenAI(
-#          model="qwen3-coder:480b-cloud", base_url=OLLAMA_BASE_URL, api_key=appConfig["ollama_api_key"], temperature=0
-#     ),
-# }
 
 # # PoloAPI model
 # openAI = {

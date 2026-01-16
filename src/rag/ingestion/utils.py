@@ -1,3 +1,13 @@
+#  Configure HuggingFace BEFORE importing unstructured
+import os
+
+os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+os.environ["HF_HOME"] = "/Users/kevin/Developer/huggingface_cache"
+os.environ["TRANSFORMERS_CACHE"] = "/Users/kevin/Developer/huggingface_cache"
+os.environ["HF_HUB_CACHE"] = "/Users/kevin/Developer/huggingface_cache"
+os.environ["HF_HUB_DOWNLOAD_TIMEOUT"] = "600"
+os.environ['UNSTRUCTURED_HI_RES_MODEL_TIMEOUT'] = '300'
+
 from unstructured.partition.html import partition_html
 from unstructured.partition.pdf import partition_pdf
 from unstructured.partition.docx import partition_docx
@@ -7,6 +17,8 @@ from unstructured.partition.md import partition_md
 
 from src.services.llm import openAI
 from langchain_core.messages import HumanMessage
+
+
 
 
 def partition_document(temp_file: str, file_type: str, source_type: str = "file"):
@@ -21,11 +33,18 @@ def partition_document(temp_file: str, file_type: str, source_type: str = "file"
     kind = (file_type or "").lower()
     dispatch = {
         "pdf": lambda: partition_pdf(
-            filename=temp_file,
-            strategy="hi_res",  # Most accurate (but slower) processing method of extraction.
-            infer_table_structure=True,  # Keep tables as structured HTML, not jumbled text.
-            extract_image_block_types=["Image"],  # Grab images found in pdf.
-            extract_image_block_to_payload=True,  # Store images as base64 strings in the payload.
+            filename=temp_file,  # Path to your PDF file
+            strategy="hi_res", # Use the most accurate (but slower) processing method of extraction
+            hi_res_model_name="yolox",
+            infer_table_structure=True, # Keep tables as structured HTML, not jumbled text
+            extract_image_block_types=["Image"], # Grab images found in the PDF
+            extract_image_block_to_payload=True # Store images as base64 data you can actually use
+
+            # filename=temp_file,
+            # strategy="hi_res",  # Most accurate (but slower) processing method of extraction.
+            # infer_table_structure=True,  # Keep tables as structured HTML, not jumbled text.
+            # extract_image_block_types=["Image"],  # Grab images found in pdf.
+            # extract_image_block_to_payload=True,  # Store images as base64 strings in the payload.
         ),
         "docx": lambda: partition_docx(
             filename=temp_file,

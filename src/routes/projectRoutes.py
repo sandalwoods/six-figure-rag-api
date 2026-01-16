@@ -14,6 +14,8 @@ from fastapi.responses import StreamingResponse
 from typing import Optional
 import json
 
+from src.services.llm import openAI
+
 logger = get_logger(__name__)
 
 router = APIRouter(tags=["projectRoutes"])
@@ -557,13 +559,15 @@ async def send_message(
         if agent_type == "simple":
             agent = create_simple_rag_agent(
                 project_id=project_id,
-                model="gpt-4o",
+                # model="gpt-4o",
+                model=openAI["chat_llm"],
                 chat_history=chat_history
             )
         elif agent_type == "agentic":
             agent = create_supervisor_agent(
                 project_id=project_id,
-                model="gpt-4o",
+                # model="gpt-4o",
+                model=openAI["chat_llm"],
                 chat_history=chat_history
             )
 
@@ -670,13 +674,15 @@ async def stream_message(
             if agent_type == "simple":
                 agent = create_simple_rag_agent(
                     project_id=project_id,
-                    model="gpt-4o",
+                    # model="gpt-4o",
+                    model=openAI["chat_llm"],
                     chat_history=chat_history
                 )
             else:  # agentic
                 agent = create_supervisor_agent(
                     project_id=project_id,
-                    model="gpt-4o",
+                    # model="gpt-4o",
+                    model=openAI["chat_llm"],
                     chat_history=chat_history
                 )
 

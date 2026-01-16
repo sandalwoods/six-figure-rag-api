@@ -306,3 +306,93 @@ make logs-worker
 | `make logs-worker`      | View worker logs                           |
 
 </details>
+
+
+### Setup supabase database local:
+`npx supabase init`
+`supabase db reset`
+`npx supabase start`
+`supabase migration new initial_schema`
+### Stop Docker containers
+`docker stop $(docker ps -aq) 2>/dev/null`
+
+### Remove any stopped containers
+`docker container prune -f`
+
+### Remove Supabase volumes (if you're okay losing local data)
+`docker volume ls | grep supabase | awk '{print $2}' | xargs docker volume rm 2>/dev/null`
+
+### Stop all containers
+docker stop $(docker ps -aq)
+
+### Remove all containers
+docker rm $(docker ps -aq)
+
+### Remove all volumes
+docker volume prune -a
+
+
+### Set local poetry venv
+`poetry config virtualenvs.in-project true`
+
+### Basic Architecture Questions
+
+1. What are the two main components of the Transformer architecture? 
+2. How many layers does the base Transformer model use in both encoder and decoder? 
+3. What is the dimensionality (dmodel) used in the base Transformer model? 
+
+Attention Mechanism Questions
+
+4. What is the formula for Scaled Dot-Product Attention? 
+5. Why do the authors scale the dot products by 1/√dk in their attention mechanism? 
+6. How many attention heads does the Transformer use, and what is the dimension of each head? 
+
+Comparative Analysis Question
+
+7. According to Table 1, what are the main advantages of self-attention layers compared to recurrent and convolutional layers in terms of computational complexity and parallelization? 
+
+### Create clerk user
+{
+  "data": {
+    "birthday": "",
+    "created_at": 1654012591514,
+    "email_addresses": [
+      {
+        "email_address": "example@example.org",
+        "id": "idn_29w83yL7CwVlJXylYLxcslromF1",
+        "linked_to": [],
+        "object": "email_address",
+        "verification": {
+          "status": "verified",
+          "strategy": "ticket"
+        }
+      }
+    ],
+    "external_accounts": [],
+    "external_id": "567772",
+    "first_name": "Example",
+    "gender": "",
+    "id": "user_37TMG5Fxmev1IyrMHOzx3yfcmSh",
+    "image_url": "https://img.clerk.com/xxxxxx",
+    "last_name": "Example",
+    "last_sign_in_at": 1654012591514,
+    "object": "user",
+    "password_enabled": true,
+    "phone_numbers": [],
+    "primary_email_address_id": "idn_29w83yL7CwVlJXylYLxcslromF1",
+    "primary_phone_number_id": null,
+    "primary_web3_wallet_id": null,
+    "private_metadata": {},
+    "profile_image_url": "https://www.gravatar.com/avatar?d=mp",
+    "public_metadata": {},
+    "two_factor_enabled": false,
+    "unsafe_metadata": {},
+    "updated_at": 1654012591835,
+    "username": null,
+    "web3_wallets": []
+  },
+  "instance_id": "ins_123",
+  "object": "event",
+  "timestamp": 1654012591835,
+  "type": "user.created"
+}

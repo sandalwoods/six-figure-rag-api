@@ -11,19 +11,19 @@ check-supabase:
 start: check-supabase
 	@echo "Starting Docker containers..."
 	@echo "Building Docker images..."
-	docker-compose build
+	docker compose build
 	@echo "Starting containers..."
-	docker-compose up -d
+	docker compose up -d
 
 # Stop all containers
 stop:
 	@echo "Stopping Docker containers..."
-	docker-compose down
+	docker compose down
 
 # Clean everything (containers, images, volumes)
 clean:
 	@echo "Cleaning all Docker resources..."
-	docker-compose down -v --rmi all --remove-orphans
+	docker compose down -v --rmi all --remove-orphans
 
 # Restart all containers
 restart: stop start
@@ -31,15 +31,15 @@ restart: stop start
 # View API server logs
 logs-api:
 	@echo "Showing API server logs (Ctrl+C to exit)..."
-	docker-compose logs -f api
+	docker compose logs -f api
 
 # View API server logs
 logs-redis:
 	@echo "Showing Redis server logs (Ctrl+C to exit)..."
-	docker-compose logs -f redis
+	docker compose logs -f redis
 
 # View Worker logs
 logs-worker:
 	@echo "Showing Worker logs (Ctrl+C to exit)..."
-	docker-compose logs -f worker
+	docker compose logs -f worker
 

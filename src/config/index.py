@@ -47,4 +47,5 @@ appConfig = {
     "openai_api_key": os.getenv("OPENAI_API_KEY"),
     "scrapingbee_api_key": os.getenv("SCRAPINGBEE_API_KEY"),
     "tavily_api_key": os.getenv("TAVILY_API_KEY"),
+    "ollama_api_key": os.getenv("OLLAMA_API_KEY")
 }

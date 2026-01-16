@@ -2,11 +2,22 @@ from celery import Celery
 from celery.signals import task_prerun, task_postrun, task_failure, worker_process_init
 from src.config.index import appConfig
 from src.config.logging import configure_logging, get_logger, set_request_id, clear_context
+import os
+
+#  Configure HuggingFace BEFORE importing unstructured
+os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+os.environ["HF_HOME"] = "/Users/kevin/Developer/huggingface_cache"
+os.environ["TRANSFORMERS_CACHE"] = "/Users/kevin/Developer/huggingface_cache"
+os.environ["HF_HUB_CACHE"] = "/Users/kevin/Developer/huggingface_cache"
+os.environ["HF_HUB_DOWNLOAD_TIMEOUT"] = "600"
+os.environ['UNSTRUCTURED_HI_RES_MODEL_TIMEOUT'] = '300'
 
 # Configure logging for Celery worker with dedicated log file
 configure_logging(log_filename="worker.log")
 
 from src.rag.ingestion.index import process_document
+
+
 
 celery_app = Celery(
     "multi-modal-rag",  # Name of the Celery App

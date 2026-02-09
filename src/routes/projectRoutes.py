@@ -112,7 +112,7 @@ async def create_project(
         # Create default project settings for the new project
         project_settings_data = {
             "project_id": newly_created_project["id"],
-            "embedding_model": "text-embedding-3-large",
+            "embedding_model": "nomic-embed-text",
             "rag_strategy": "basic",
             "agent_type": "agentic",
             "chunks_per_search": 10,
@@ -517,7 +517,6 @@ async def send_message(
     Step 3 : Get chat history for context.
     Step 4 : Invoke the simple agent with the user's message.
     Step 5 : Insert the AI Response into the database after invocation completes.
-
     Returns a JSON response with the user message and AI response.
     """
     set_project_id(project_id)

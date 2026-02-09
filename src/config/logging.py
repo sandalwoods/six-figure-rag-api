@@ -38,7 +38,7 @@ def add_context_info(logger: WrappedLogger, method_name: str, event_dict: EventD
     if project_id:
         event_dict["project_id"] = project_id
     event_dict["pod_name"] = POD_NAME
-    event_dict["host_name"] = HOST_NAME
+    event_dict["host_name"] = HOST_NAME 
     return event_dict
 
 

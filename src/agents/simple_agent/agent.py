@@ -381,7 +381,7 @@ def create_simple_rag_agent(
     ).with_config({"recursion_limit": 5})
     
     # Build the StateGraph with guardrails
-    workflow = StateGraph(CustomAgentState)
+    workflow = StateGraph[CustomAgentState, None, CustomAgentState, CustomAgentState](CustomAgentState)
     
     # Add nodes
     workflow.add_node("guardrail", guardrail_node)

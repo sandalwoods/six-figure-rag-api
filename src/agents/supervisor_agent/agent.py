@@ -98,6 +98,15 @@ def check_input_guardrails(user_message: str) -> InputGuardrailCheck:
     result = structured_llm.invoke(prompt)
     
     return result
+    # return InputGuardrailCheck(
+    #     is_safe=True,
+    #     is_toxic=False,
+    #     is_prompt_injection=False,
+    #     contains_pii=False,
+    #     reason=''
+    # )
+        
+    
 
 
 # =============================================================================
